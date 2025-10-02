@@ -345,8 +345,7 @@
       // 5. Function to render the individual book lists
       function renderBooks() {
         const readingListElement = document.getElementById('reading-list');
-        const finishedListElement = document.getElementById('finished-list');
-
+        
         // Filter and map books to their HTML
         const readingBooks = books
           .filter(book => book.status === 'reading')
