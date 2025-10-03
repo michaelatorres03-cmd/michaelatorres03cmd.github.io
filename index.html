@@ -151,14 +151,29 @@
           flex-wrap: wrap;
           gap: 15px;
           margin-top: 1.5rem;
-          justify-content: center;
+          /* Center the covers, important for single-image display */
+          justify-content: center; 
       }
       
       .series-book-cover {
           text-align: center;
-          max-width: 120px;
+          /* Default max width */
+          max-width: 120px; 
       }
       
+      /* Make the ACOTAR image larger and simplify its container since it's one image */
+      #a-court-of-thorns-and-roses .series-books {
+          display: block; /* Change back to block for single image container */
+          text-align: center;
+      }
+      
+      #a-court-of-thorns-and-roses .series-book-cover {
+          display: inline-block;
+          /* Adjusted max-width for better display of the single series image */
+          max-width: 300px; 
+          margin: 0 auto;
+      }
+
       .series-book-cover img {
           width: 100%;
           height: auto;
@@ -182,7 +197,7 @@
     <main>
       
       <section id="river-styx-heathens">
-        <h2>River Styx Heathens Series 💀</h2>
+        <h2>The Hollow Boys Series 💀</h2>
         
         <div class="series-review">
             <h3>Series Rating: <span class="book-rating" id="river-styx-rating"></span></h3>
@@ -223,30 +238,31 @@
       const seriesData = {
           // New Series Data for River Styx Heathens
           riverStyx: {
-              title: "River Styx Heathens",
+              title: "The Hollow Boys",
               author: "Monty Jay",
               rating: 4.5,
               review: "Loved this series, reread it all the time, the character developments and storylines are so good and I didn't know the truth until I was almost done with the series. Can't wait for the second gen.",
               books: [
                   // *** IMPORTANT: Replace these placeholder URLs with actual image links ***
-                  { title: "The Reaper", coverUrl: "https://via.placeholder.com/150x225/2A4742/FFFFFF?text=The+Reaper" }, 
-                  { title: "The Rider", coverUrl: "https://via.placeholder.com/150x225/CDB4B5/000000?text=The+Rider" }, 
-                  { title: "The Reckoning", coverUrl: "https://via.placeholder.com/150x225/2A4742/FFFFFF?text=The+Reckoning" },
-                  { title: "The Retribution", coverUrl: "https://via.placeholder.com/150x225/CDB4B5/000000?text=The+Retribution" },
+                  { 
+                    title: "The Hollow Boys Collection",
+                    coverUrl: "HI.jpeg"  
+
+                  },
               ]
           },
-          // Existing ACOTAR Data
+          // UPDATED ACOTAR Data: Reduced to a single 'series cover' book object
           acotar: {
               title: "A Court of Thorns and Roses",
               author: "Sarah J. Maas",
               rating: 4.7,
               review: "Great series! Was never bored and the pacing was really good. Wish some of the side character arcs toward the end were wrapped up a little better.",
               books: [
-                  { title: "A Court of Thorns and Roses", coverUrl: "https://via.placeholder.com/150x225/A25F7A/FFFFFF?text=ACOTAR+1" }, 
-                  { title: "A Court of Mist and Fury", coverUrl: "https://via.placeholder.com/150x225/3B5A9A/FFFFFF?text=ACOTAR+2" }, 
-                  { title: "A Court of Wings and Ruin", coverUrl: "https://via.placeholder.com/150x225/6C3E4C/FFFFFF?text=ACOTAR+3" }, 
-                  { title: "A Court of Frost and Starlight", coverUrl: "https://via.placeholder.com/150x225/4B8A88/FFFFFF?text=ACOTAR+3.5" }, 
-                  { title: "A Court of Silver Flames", coverUrl: "https://via.placeholder.com/150x225/D0B841/FFFFFF?text=ACOTAR+4" }, 
+                  // 🚨 This is the spot where your saved image URL is added for ACOTAR! 🚨
+                  { 
+                      title: "ACOTAR Series Collection", 
+                      coverUrl: "image.JPG"
+                  }, 
               ]
           }
       };
@@ -274,7 +290,7 @@
           rating: 4.3,
           status: "reading",
           review: "5/13 books so far and I cannot put it down! .",
-          coverUrl: "https://via.placeholder.com/150x225/6D4C41/FFFFFF?text=Secret+History" 
+          coverUrl: "LU.jpeg" 
         },
         {
           title: "Educated: A Memoir",
@@ -296,7 +312,7 @@
         return fullStars + halfStar + emptyStars;
       }
 
-      // 3. Function to create the HTML for a single book
+      // 3. Function to create the HTML for a single book (used for currently reading)
       function createBookHTML(book) {
         const statusClass = book.status === 'reading' ? 'status-reading' : 'status-finished';
         const ratingHTML = `<span class="book-rating" title="${book.rating ? book.rating + ' out of 5' : 'Not rated'}">${getStars(book.rating)}</span>`;
@@ -328,12 +344,17 @@
           reviewElement.textContent = `"${series.review}" - Michaela`;
           
           // Generate book cover HTML
+          // Logic is simplified: if there's only one "book" in the series, it treats it as the series cover.
           const coverHTML = series.books.map(book => {
+              // Only display the title/caption if there are multiple books (like River Styx)
+              // OR if it's the ACOTAR single image, display the title (ACOTAR Series Collection)
+              const showCaption = series.books.length > 1 || seriesKey === 'acotar'; 
+
               return `
-                <div class="series-book-cover">
-                    <img src="${book.coverUrl}" alt="${book.title} Cover">
-                    <p>${book.title}</p>
-                </div>
+                  <div class="series-book-cover">
+                      <img src="${book.coverUrl}" alt="${book.title} Cover">
+                      ${showCaption ? `<p>${book.title}</p>` : ''}
+                  </div>
               `;
           }).join('');
           
@@ -345,30 +366,22 @@
       // 5. Function to render the individual book lists
       function renderBooks() {
         const readingListElement = document.getElementById('reading-list');
-        
+
         // Filter and map books to their HTML
         const readingBooks = books
           .filter(book => book.status === 'reading')
           .map(createBookHTML)
           .join('');
 
-        const finishedBooks = books
-          .filter(book => book.status === 'finished')
-          // Sort finished books by rating (descending)
-          .sort((a, b) => b.rating - a.rating)
-          .map(createBookHTML)
-          .join('');
-
-        // Inject the HTML into the respective lists
+        // Inject the HTML into the reading list
         readingListElement.innerHTML = readingBooks;
-        finishedListElement.innerHTML = finishedBooks;
       }
 
       // 6. Run the render functions when the page loads
       document.addEventListener('DOMContentLoaded', () => {
-          // Render the new River Styx Heathens series
+          // Render the River Styx Heathens series
           renderSeries('riverStyx', 'river-styx-heathens', 'river-styx-covers', 'river-styx-rating', 'river-styx-review');
-          // Render the existing ACOTAR series
+          // Render the ACOTAR series (now with one image)
           renderSeries('acotar', 'a-court-of-thorns-and-roses', 'acotar-covers', 'acotar-rating', 'acotar-review');
           
           renderBooks();
